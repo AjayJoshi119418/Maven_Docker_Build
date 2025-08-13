@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'mymaven'
-        jdk 'myjdk'
-    }
-
     environment {
         DOCKER_IMAGE = "ajayjoshi119418/maven-docker-build:latest"
     }
@@ -13,7 +8,6 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Uses Jenkins automatic SCM checkout
                 checkout scm
             }
         }
