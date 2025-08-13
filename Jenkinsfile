@@ -1,47 +1,48 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven_3.9.4' // Match the Maven name in Jenkins tool config
+        jdk 'JDK_17'        // Match the JDK name in Jenkins tool config
+    }
+
     environment {
-        DOCKER_IMAGE = "springboot-demo"
-        DOCKER_TAG = "latest"
+        DOCKER_IMAGE = "ajayjoshi119418/maven-docker-build:latest"
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/AjayJoshi119418/Maven_Docker_Build.git'
+                // Uses Jenkins automatic SCM checkout
+                checkout scm
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh "mvn clean package -DskipTests"
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                }
+                sh "docker build -t ${DOCKER_IMAGE} ."
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                script {
-                    // Stop old container if exists
-                    sh """
-                        docker ps -q --filter "name=springboot-app" | grep -q . && docker stop springboot-app || true
-                        docker rm springboot-app || true
-                    """
-                    // Run new container
-                    sh "docker run -d --name springboot-app -p 8080:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                }
+                sh "docker run -d -p 8080:8080 ${DOCKER_IMAGE}"
             }
         }
     }
 
     post {
-        success {
-            echo "✅ Application deployed successfully! Access it at http://<Jenkins-Server-IP>:8080"
-        }
         failure {
-            echo "❌ Build or deployment failed."
+            echo '❌ Build or deployment failed.'
+        }
+        success {
+            echo '✅ Build and deployment successful!'
         }
     }
 }
