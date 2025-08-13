@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/AjayJoshi119418/Maven_Docker_Build.git'
+                git branch: 'master', url: 'https://github.com/AjayJoshi119418/Maven_Docker_Build.git'
             }
         }
 
